@@ -4,6 +4,16 @@
 
 ZIP・PDF と画像フォルダを読む Windows 向け漫画ビューワー。画面は [Figma](https://www.figma.com/design/x8IxqAYvCHo0D208eyaVmD/MangaViewer?node-id=10-23) のデザインに基づく。
 
+## ダウンロード
+
+最新の安定版へ更新された Windows 11（x64）に対応しています。
+
+- [Microsoft Store版](https://apps.microsoft.com/detail/9N3GRRDSFRDZ)：無料。.NETランタイムを同梱し、更新はStoreが管理します。
+- [インストーラー版（Komado-Setup.exe）](https://github.com/asonas/Komado/releases/latest/download/Komado-Setup.exe)：[.NET 10 Desktop Runtime（Windows x64）](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)が別途必要です。インストールには管理者権限が必要です。
+- [リリースノート・過去のバージョン](https://github.com/asonas/Komado/releases)
+
+インストーラー版はコード署名を付けていないため、Windowsが警告を表示する場合があります。
+
 ## 起動
 
 ビルド済みの `artifacts/app/MangaViewer.exe` を起動する。最新の安定版へ更新された Windows 11 (64 bit) と .NET 10 LTS の Desktop Runtime が必要。プレビュー版は利用しない。
