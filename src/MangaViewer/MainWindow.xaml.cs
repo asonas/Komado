@@ -47,6 +47,10 @@ public partial class MainWindow : Window
         thumbnailCache = new ThumbnailCache(Path.Combine(Path.GetDirectoryName(Path.GetFullPath(preferencesPath))!, "Cache", "Thumbnails"));
         InitializeComponent();
         UpdateRecentFiles();
+        Activated += (_, _) =>
+        {
+            if (book is null) UpdateRecentFiles();
+        };
         keyRepeatTimer.Tick += KeyRepeat_Tick;
         var settings = WindowPreferences.Load(preferencesPath);
         Width = Math.Clamp(settings.Width, MinWidth, Math.Max(MinWidth, SystemParameters.WorkArea.Width));
@@ -111,6 +115,17 @@ public partial class MainWindow : Window
 
     private void UpdateRecentFiles()
     {
+        if (book is null)
+        {
+            try
+            {
+                recentFiles.RemoveMissing();
+            }
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+            {
+                ShowError("履歴を保存できませんでした。\n" + exception.Message);
+            }
+        }
         RecentItems.ItemsSource = recentFiles.Entries;
         RecentSection.Visibility = recentFiles.Entries.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
     }
@@ -118,7 +133,8 @@ public partial class MainWindow : Window
     private async void RecentFile_Click(object sender, RoutedEventArgs e)
     {
         e.Handled = true;
-        if (sender is Button { Tag: string path }) await OpenBookAsync(path);
+        if (sender is Button { Tag: string path } && !await OpenBookAsync(path) && !closed && book is null)
+            UpdateRecentFiles();
     }
 
     private async void RecentThumbnail_Loaded(object sender, RoutedEventArgs e)

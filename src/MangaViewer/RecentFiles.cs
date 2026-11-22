@@ -29,10 +29,40 @@ public sealed class RecentFiles
         string fullPath = Path.TrimEndingDirectorySeparator(Path.GetFullPath(path));
         var paths = new[] { fullPath }.Concat(Entries.Select(entry => entry.FullPath))
             .Distinct(StringComparer.OrdinalIgnoreCase).Take(10).ToArray();
+        Save(paths);
+        Entries = paths.Select(path => new RecentFile(path)).ToArray();
+    }
+
+    public void RemoveMissing()
+    {
+        var remaining = Entries.Where(entry => !IsMissing(entry.FullPath)).ToArray();
+        if (remaining.Length == Entries.Count) return;
+        Entries = remaining;
+        Save(remaining.Select(entry => entry.FullPath).ToArray());
+    }
+
+    private static bool IsMissing(string path)
+    {
+        try
+        {
+            File.GetAttributes(path);
+            return false;
+        }
+        catch (Exception exception) when (exception is FileNotFoundException or DirectoryNotFoundException)
+        {
+            return true;
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or ArgumentException)
+        {
+            return false;
+        }
+    }
+
+    private void Save(string[] paths)
+    {
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(storagePath))!);
         File.WriteAllText(storagePath + ".tmp", JsonSerializer.Serialize(paths));
         File.Move(storagePath + ".tmp", storagePath, true);
-        Entries = paths.Select(path => new RecentFile(path)).ToArray();
     }
 }
 
